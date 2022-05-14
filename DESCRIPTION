@@ -22,4 +22,5 @@ Imports:
     magrittr,
     parallel,
     qusage,
+    stringr,
     tidygraph
