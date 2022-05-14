@@ -4,36 +4,36 @@
 get_centrality <- function(my_focal, my_grp, my_subset) {
 
   my_network <- my_subset %>%
-    ungroup() %>%
-    rename(from = sname, to = partner) %>%
-    mutate(grp_fct = factor(grp),
+    dplyr::ungroup() %>%
+    dplyr::rename(from = sname, to = partner) %>%
+    dplyr::mutate(grp_fct = factor(grp),
            from = paste(from, grp, sep = "_"),
            to = paste(to, grp, sep = "_")) %>%
-    filter(res_i_adj > -10)
+    dplyr::filter(res_i_adj > -10)
 
-  grps <- bind_rows(select(my_network, name = from, grp),
+  grps <- dplyr::bind_rows(select(my_network, name = from, grp),
                     select(my_network, name = to, grp)) %>%
-    distinct(name, grp)
+    dplyr::distinct(name, grp)
 
-  sxs <- bind_rows(select(my_network, name = from, sex = sname_sex),
+  sxs <- dplyr::bind_rows(select(my_network, name = from, sex = sname_sex),
                    select(my_network, name = to, sex = partner_sex)) %>%
-    distinct(name, sex)
+    dplyr::distinct(name, sex)
 
-  f_graph <- as_tbl_graph(my_network, directed = FALSE, my_network) %>%
-    activate(nodes) %>%
-    left_join(grps, by = "name") %>%
-    left_join(sxs, by = "name") %>%
-    mutate(sname = str_sub(name, 1, 3))
+  f_graph <- tidygraph::as_tbl_graph(my_network, directed = FALSE, my_network) %>%
+    tidygraph::activate(nodes) %>%
+    dplyr::left_join(grps, by = "name") %>%
+    dplyr::left_join(sxs, by = "name") %>%
+    dplyr::mutate(sname = str_sub(name, 1, 3))
 
   # Calculate centrality metrics
   res <- f_graph %>%
-    morph(to_split, grp) %>%
-    mutate(eigen_wt = centrality_eigen(weights = res_i_adj)
+    tidygraph::morph(to_split, grp) %>%
+    dplyr::mutate(eigen_wt = centrality_eigen(weights = res_i_adj)
            # eigen = centrality_eigen(),
            # betweenness = centrality_betweenness(normalized = TRUE),
            # degree = centrality_degree(normalized = TRUE)
     ) %>%
-    unmorph()
+    tidygraph::unmorph()
 
   return(res)
 }
@@ -52,22 +52,22 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
 merge_sr<-function(sci,agi,dsi_pop,dsi_pop_summary){
   # calculate-eigen_wt
   dsi<-dsi_pop %>%
-    mutate(centrality = suppressMessages(pmap(list(sname, grp, subset), get_centrality)))%>%
-    select(-di, -subset) %>%
-    mutate(network = map(centrality, as_tibble)) %>%
-    select(-centrality) %>%
-    unnest() %>%
-    mutate(name = str_sub(name, 1, 3)) %>%
-    filter(sname == name & grp == grp1) %>%
-    select(sname, grp, start, end, sex, age_class, eigen_wt)
+    dplyr::mutate(centrality = suppressMessages(purrr::pmap(list(sname, grp, subset), get_centrality)))%>%
+    dplyr::select(-di, -subset) %>%
+    dplyr::mutate(network = purrr::map(centrality, as_tibble)) %>%
+    dplyr::select(-centrality) %>%
+    tidyr::unnest() %>%
+    dplyr::mutate(name = str_sub(name, 1, 3)) %>%
+    dplyr::filter(sname == name & grp == grp1) %>%
+    dplyr::select(sname, grp, start, end, sex, age_class, eigen_wt)
 
   # Merge data
-    social_info<-sci%>%select(-subset)%>%
-    left_join(agi)%>%
-    left_join(dsi_pop_summary)%>%
-    left_join(dsi)%>%select(-subset)%>%
-    mutate(SumBond_F=StronglyBonded_F+VeryStronglyBonded_F+WeaklyBonded_F)%>%
-    mutate(SumBond_M=StronglyBonded_M+VeryStronglyBonded_M+WeaklyBonded_M)
+    social_info<-sci%>%dplyr::select(-subset)%>%
+      dplyr::left_join(agi)%>%
+      dplyr::left_join(dsi_pop_summary)%>%
+      dplyr::left_join(dsi)%>%select(-subset)%>%
+      dplyr::mutate(SumBond_F=StronglyBonded_F+VeryStronglyBonded_F+WeaklyBonded_F)%>%
+      dplyr::mutate(SumBond_M=StronglyBonded_M+VeryStronglyBonded_M+WeaklyBonded_M)
 
     return(social_info)
 }
@@ -86,8 +86,6 @@ merge_sr<-function(sci,agi,dsi_pop,dsi_pop_summary){
 #' @param .cumulative_adult_life Logical indicating whether to calculate adult life: rnk/mature date - darting date, default is FALSE
 #'
 #' @return A tibble with one row per animal (and optionally, per group) and target date, with contextual data
-#' @export
-#'
 
 make_target_date_custom_df <- function(target_df, babase, members_l, window_shift=0,window_length = 1, .by_grp = TRUE,
                                        .adults_only = TRUE, .early_life=FALSE,.cumulative_adult_life=F) {

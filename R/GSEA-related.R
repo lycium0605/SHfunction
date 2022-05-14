@@ -64,10 +64,10 @@ GSEA_var<-function(emm_result,varname,hallway,numcore=3,sim=10000){
                                            correl.vector = o,weighted.score.type = 1)$ES
 
     temp<-1:sim
-    clus <- makeCluster(numcore)
-    registerDoParallel(cores=numcore)
-    clusterExport(clus,varlist =c("hallmark","keep",'o',"GSEA.EnrichmentScore","f","temp"),envir=environment())
-    temp2<-parSapply(cl = clus,X = 1:sim,FUN = function(i){
+    clus <- parallel::makeCluster(numcore)
+    doParallel::registerDoParallel(cores=numcore)
+    parallel::clusterExport(clus,varlist =c("hallmark","keep",'o',"GSEA.EnrichmentScore","f","temp"),envir=environment())
+    temp2<-parallel::parSapply(cl = clus,X = 1:sim,FUN = function(i){
       #Randomly shuffle standardized betas across genes
       rand<-sample(1:length(keep),size= length(keep),replace=FALSE)
       o_perm<-o[rand]
@@ -76,7 +76,7 @@ GSEA_var<-function(emm_result,varname,hallway,numcore=3,sim=10000){
       temp[i]<-GSEA.EnrichmentScore(gene.list = names(o_perm), gene.set = unlist(hallmark[[f]]),correl.vector = o_perm,weighted.score.type = 1)$ES
       return(temp[i])
     })
-    stopCluster(clus)
+    parallel::stopCluster(clus)
 
     #The pvalue is the % of abs(observed ES)< abs(permuted ES)
     hall_enrich[f,2]<-length(which(abs(hall_enrich[f,1]) < abs(temp2)))/10000
