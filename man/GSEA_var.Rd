@@ -24,5 +24,5 @@ a dataframe containing ES and ES_p
 GSEA_var
 }
 \examples{
-GSEA_var(emm,"rank_lps")
+GSEA_var(emm_result,"rank_lps")
 }
