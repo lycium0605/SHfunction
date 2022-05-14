@@ -24,7 +24,7 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
     tidygraph::activate(nodes) %>%
     dplyr::left_join(grps, by = "name") %>%
     dplyr::left_join(sxs, by = "name") %>%
-    dplyr::mutate(sname = str_sub(name, 1, 3))
+    dplyr::mutate(sname = stringr::str_sub(name, 1, 3))
 
   # Calculate centrality metrics
   res <- f_graph %>%
