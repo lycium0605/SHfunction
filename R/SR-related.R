@@ -11,12 +11,12 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
            to = paste(to, grp, sep = "_")) %>%
     dplyr::filter(res_i_adj > -10)
 
-  grps <- dplyr::bind_rows(select(my_network, name = from, grp),
+  grps <- dplyr::bind_rows(dplyr::select(my_network, name = from, grp),
                     dplyr::select(my_network, name = to, grp)) %>%
     dplyr::distinct(name, grp)
 
-  sxs <- dplyr::bind_rows(select(my_network, name = from, sex = sname_sex),
-                   select(my_network, name = to, sex = partner_sex)) %>%
+  sxs <- dplyr::bind_rows(dplyr::select(my_network, name = from, sex = sname_sex),
+                          dplyr::select(my_network, name = to, sex = partner_sex)) %>%
     dplyr::distinct(name, sex)
 
   f_graph <- tidygraph::as_tbl_graph(my_network, directed = FALSE, my_network) %>%
