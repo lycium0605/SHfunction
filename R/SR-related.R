@@ -29,7 +29,7 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
   # Calculate centrality metrics
   res <- f_graph %>%
     tidygraph::morph(tidygraph::to_split, grp) %>%
-    dplyr::mutate(eigen_wt = centrality_eigen(weights = res_i_adj)
+    dplyr::mutate(eigen_wt = tidygraph::centrality_eigen(weights = res_i_adj)
            # eigen = centrality_eigen(),
            # betweenness = centrality_betweenness(normalized = TRUE),
            # degree = centrality_degree(normalized = TRUE)
