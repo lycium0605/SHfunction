@@ -11,8 +11,9 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
            to = paste(to, grp, sep = "_")) %>%
     dplyr::filter(res_i_adj > -10)
 
-  grps <- dplyr::bind_rows(dplyr::select(my_network, name = from, grp),
-                    dplyr::select(my_network, name = to, grp)) %>%
+  grps <- dplyr::bind_rows(
+    dplyr::select(my_network, name = from, grp),
+    dplyr::select(my_network, name = to, grp)) %>%
     dplyr::distinct(name, grp)
 
   sxs <- dplyr::bind_rows(dplyr::select(my_network, name = from, sex = sname_sex),
