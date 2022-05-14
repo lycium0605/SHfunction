@@ -38,6 +38,40 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
   return(res)
 }
 
+#' merge_sr
+#'
+#' @description Merging sci, agi, dsi_pop and dsi_pop_summary, calculate eigen_wt and sumbond
+#' @param sci SCI data frame
+#' @param agi agi data frame
+#' @param dsi_pop dsi_pop data frame
+#' @param dsi_pop_summary dsi_pop_summary data frame
+#'
+#' @return a merged social info data frame
+#' @export
+#'
+merge_sr<-function(sci,agi,dsi_pop,dsi_pop_summary){
+  # calculate-eigen_wt
+  dsi<-dsi_pop %>%
+    mutate(centrality = suppressMessages(pmap(list(sname, grp, subset), get_centrality)))%>%
+    select(-di, -subset) %>%
+    mutate(network = map(centrality, as_tibble)) %>%
+    select(-centrality) %>%
+    unnest() %>%
+    mutate(name = str_sub(name, 1, 3)) %>%
+    filter(sname == name & grp == grp1) %>%
+    select(sname, grp, start, end, sex, age_class, eigen_wt)
+
+  # Merge data
+    social_info<-sci%>%select(-subset)%>%
+    left_join(agi)%>%
+    left_join(dsi_pop_summary)%>%
+    left_join(dsi)%>%select(-subset)%>%
+    mutate(SumBond_F=StronglyBonded_F+VeryStronglyBonded_F+WeaklyBonded_F)%>%
+    mutate(SumBond_M=StronglyBonded_M+VeryStronglyBonded_M+WeaklyBonded_M)
+
+    return(social_info)
+}
+
 # Make target date df custom ----------------------------------------------
 #' Create a data frame with year-long intervals given start and end date, and backwards.
 #'

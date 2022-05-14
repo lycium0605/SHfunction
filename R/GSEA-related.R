@@ -42,7 +42,7 @@ GSEA.EnrichmentScore <- function(gene.list, gene.set, weighted.score.type = 1, c
 #' @return a dataframe containing ES and ES_p
 #' @export
 #'
-#' @examples GSEA_var(emm,"rank_lps")
+#' @examples GSEA_var(emm_result,"rank_lps")
 GSEA_var<-function(emm_result,varname,hallway,numcore=3,sim=10000){
   emma_noper<-emm_result
   varlist<-c(grep("var_",colnames(emma_noper)))
