@@ -12,7 +12,7 @@ get_centrality <- function(my_focal, my_grp, my_subset) {
     dplyr::filter(res_i_adj > -10)
 
   grps <- dplyr::bind_rows(select(my_network, name = from, grp),
-                    select(my_network, name = to, grp)) %>%
+                    dplyr::select(my_network, name = to, grp)) %>%
     dplyr::distinct(name, grp)
 
   sxs <- dplyr::bind_rows(select(my_network, name = from, sex = sname_sex),
@@ -62,10 +62,12 @@ merge_sr<-function(sci,agi,dsi_pop,dsi_pop_summary){
     dplyr::select(sname, grp, start, end, sex, age_class, eigen_wt)
 
   # Merge data
-    social_info<-sci%>%dplyr::select(-subset)%>%
+    social_info<-sci%>%
+      dplyr::select(-subset)%>%
       dplyr::left_join(agi)%>%
       dplyr::left_join(dsi_pop_summary)%>%
-      dplyr::left_join(dsi)%>%select(-subset)%>%
+      dplyr::left_join(dsi)%>%
+      dplyr::select(-subset)%>%
       dplyr::mutate(SumBond_F=StronglyBonded_F+VeryStronglyBonded_F+WeaklyBonded_F)%>%
       dplyr::mutate(SumBond_M=StronglyBonded_M+VeryStronglyBonded_M+WeaklyBonded_M)
 
