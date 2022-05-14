@@ -55,7 +55,7 @@ merge_sr<-function(sci,agi,dsi_pop,dsi_pop_summary){
   dsi<-dsi_pop %>%
     dplyr::mutate(centrality = suppressMessages(purrr::pmap(list(sname, grp, subset), get_centrality)))%>%
     dplyr::select(-di, -subset) %>%
-    dplyr::mutate(network = purrr::map(centrality, as_tibble)) %>%
+    dplyr::mutate(network = purrr::map(centrality, tidygraph::as_tibble)) %>%
     dplyr::select(-centrality) %>%
     tidyr::unnest() %>%
     dplyr::mutate(name = str_sub(name, 1, 3)) %>%
