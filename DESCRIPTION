@@ -19,8 +19,8 @@ Imports:
     ggraph,
     ggrepel,
     grid,
-    magrittr,
     parallel,
     qusage,
+    stats,
     stringr,
     tidygraph

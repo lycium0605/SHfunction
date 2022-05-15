@@ -38,7 +38,9 @@ GSEA.EnrichmentScore <- function(gene.list, gene.set, weighted.score.type = 1, c
 #' @param hallway the list containing info about 50 hallways
 #' @param numcore number of cores to use, default 3
 #' @param sim number rounds of simulation, default 10000
-#'
+#' @import dplyr
+#' @import parallel
+#' @import doParallel
 #' @return a dataframe containing ES and ES_p
 #' @export
 #'

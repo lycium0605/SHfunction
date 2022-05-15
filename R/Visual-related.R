@@ -64,6 +64,8 @@ plot_gg<-function(gg,row,col){
 #' @param unitheight height of a single p histogram, default to 600
 #'
 #' @return
+#' @import ggplot2
+#' @import grid
 #' @export
 
 plot_p<-function(dat,p_name,x_name,bw=0.005,plim=0.05,
@@ -114,6 +116,8 @@ plot_p<-function(dat,p_name,x_name,bw=0.005,plim=0.05,
 #' @param p p cut-off to mark red
 #'
 #' @return a ggplot object
+#' @import ggplot2
+#' @importFrom stats cor
 #' @export
 
 stdbeta_plot_simple<-function(x,y,data,p=0.1){
@@ -153,6 +157,8 @@ stdbeta_plot_simple<-function(x,y,data,p=0.1){
 #' @param p p cut-off to mark red
 #'
 #' @return a ggplot object
+#' @import ggplot2
+#' @importFrom  stats cor
 #' @export
 
 
@@ -193,6 +199,9 @@ stdbeta_plot<-function(x,y,condition="lps",data,p=0.1){
 #' @param ptsize point size
 #'
 #' @return a gg object
+#' @import ggplot2
+#' @importFrom  stats cor
+#' @import dplyr
 #' @export
 
 plot_gsea_comp<-function(data,var1,var2,pcut=0.05,lab_size=2.5,ptsize=0.8){

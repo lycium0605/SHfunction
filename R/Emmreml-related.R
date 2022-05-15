@@ -44,6 +44,9 @@ create_design<-function(data,nested_name,lps_name="treatment"){
 #' @param numcore number of core to use, default to 3
 #'
 #' @return a data frame containing emmreml results
+#' @import parallel
+#' @import EMMREML
+#' @import doParallel
 #' @export
 
 run_emm<-function(z,resids,rel,design,numcore=3){
@@ -55,7 +58,7 @@ run_emm<-function(z,resids,rel,design,numcore=3){
   rel_female<-as.matrix(rel)
   clusterExport(iclus,varlist=c("resids_female","design",'z',"rel_female"),envir=environment())
   EMMA_RNA_nested=t(parApply(iclus,resids_female[,z],1,function(y){
-    library(EMMREML)
+    requreNamespace(EMMREML)
     emma=emmreml(y=y,X=design[z,],Z=diag(length(z)),K=rel_female[z,z],varbetahat=T,varuhat=T,PEVuhat=T,test=T)
     p=emma$pvalbeta
     varb=emma$varbetahat
@@ -82,6 +85,7 @@ run_emm<-function(z,resids,rel,design,numcore=3){
 #' @param plot plot p histogram or not, default to F
 #'
 #' @return a combined result datarame
+#' @import ggplot2
 #' @export
 #'
 #' @examples batch_emm(meta_info,c("age","rank"),resids,rel)

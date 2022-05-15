@@ -90,6 +90,7 @@ merge_sr<-function(sci,agi,dsi_pop,dsi_pop_summary){
 #'
 #' @return A tibble with one row per animal (and optionally, per group) and target date, with contextual data
 
+
 make_target_date_custom_df <- function(target_df, babase, members_l, window_shift=0,window_length = 1, .by_grp = TRUE,
                                        .adults_only = TRUE, .early_life=FALSE,.cumulative_adult_life=F) {
 
