@@ -12,7 +12,9 @@ batch_emm(
   lps_name = "treatment",
   numcore = 3,
   sname = "sname.x",
-  plot = F
+  plot = F,
+  savedir = "NA",
+  x_axis_size = 20
 )
 }
 \arguments{
@@ -27,6 +29,10 @@ batch_emm(
 \item{sname}{default to "sname.x"}
 
 \item{plot}{plot p histogram or not, default to F}
+
+\item{savedir}{if you want to save the picture, specify a dir}
+
+\item{x_axis_size}{font size of the x axis title, default to 20}
 
 \item{resids_female}{GE residuals data frame, will automatically be transformed to matrix}
 

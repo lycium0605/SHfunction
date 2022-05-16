@@ -1,6 +1,16 @@
 # Social index -------------------------------------------------
 # from https://gist.github.com/camposfa/50e138a48c89dcd31f5a41d5177d66d4
 
+#' get_centrality
+#'
+#' @param my_focal my focal
+#' @param my_grp my group
+#' @param my_subset my subset
+#'
+#' @return eigenvector
+#' @export
+#' @importFrom stringr str_sub
+
 get_centrality <- function(my_focal, my_grp, my_subset) {
 
   my_network <- my_subset %>%
@@ -256,3 +266,70 @@ make_target_date_custom_df <- function(target_df, babase, members_l, window_shif
 
   return(target_df)
 }
+
+
+# Merge ge meta with sr info ----------------------------------------------
+
+#' merge_ge_sr
+#' @description Merge the GE meta info with SR info
+#' @param ge_meta should contain sname,dart_date,treatment,group,sex,rank,age
+#' @param sci sci input from Ramboseli::sci
+#' @param agi agi input from Ramboseli::agi
+#' @param dsi dsi_pop input from Ramboseli::dsi_pop
+#' @param dsi_sum dsi_pop_sumamry input from Ramboseli::dsi_pop_summary
+#' @param type "wt_avg"(default),"dir_avg", or "grp_only". calculating weighted average by days_present across group, direct average, or keep only the group observed on the darting date
+#'
+#' @return a data frame with merged meta info
+#' @export
+#'
+#' @importFrom stats weighted.mean
+#' @import dplyr
+
+merge_ge_sr<-function(ge_meta,sci,agi,dsi,dsi_sum,type="wt_avg"){
+
+  #preprocess GE meta info to retain order and match data type
+  message("Preprocessing GE meta info")
+  ge_meta<-ge_meta%>%select(sname,dart_date,treatment,group,sex,rank,age)%>%
+    mutate(dart_date=as.Date(dart_date))%>%
+    mutate(sampleID=as.numeric(row.names(ge_meta)))
+
+  #preprocess SR meta info, calculate eigen_wt and merge them (not keeping _Dir and _rec)
+  message("Preprocessing and merging SR info")
+  sr<-merge_sr(sci,agi,dsi_pop = dsi,dsi_pop_summary = dsi_sum)
+  sr_simp<-sr%>%
+    select(sname,grp,sex,obs_date,days_present,eigen_wt,
+           contains("SCI")|contains("AGI")|contains("DSI")|contains("SumBond"))%>%
+    select(-contains("_Dir"),-contains("_Rec"))%>%
+    rename(group=grp)
+
+  #start merging ge and sr
+  if(type=="wt_avg"){
+    message("Calculating weighed average of SR based on days present")
+    ge_sr_meta<-ge_meta%>%
+      left_join(sr_simp,by=c("sname","sex","dart_date"="obs_date"),
+                suffix=c(".ge",".sr"))%>%
+      group_by(sampleID,sname,dart_date,treatment,group.ge,sex,rank,age)%>%
+      mutate(sr_weight=days_present/sum(days_present))%>%
+      summarise_all(~weighted.mean(.,w=sr_weight),na.rm=F)%>%
+      select(-group.sr,-sr_weight)%>%
+      rename(group=group.ge)
+  }else if(type=="dir_avg"){
+    message("Calculating direct average of SR")
+    ge_sr_meta<-ge_meta%>%
+      left_join(sr_simp,by=c("sname","sex","dart_date"="obs_date"),
+                suffix=c(".ge",".sr"))%>%
+      group_by(sampleID,sname,dart_date,treatment,group.ge,sex,rank,age)%>%
+      summarise_all(mean,na.rm=F)%>%
+      select(-group.sr)%>%
+      rename(group=group.ge)
+  }else if(type=="grp_only"){
+    message("Using the SR for group presented on dart_date")
+    ge_sr_meta<-ge_meta%>%
+      left_join(sr_simp,by=c("sname","group","sex","dart_date"="obs_date"))
+  }else{
+    stop("Wrong type input, has to be wt_avg, dir_avg or grp_only.")
+  }
+  return(ge_sr_meta)
+
+}
+

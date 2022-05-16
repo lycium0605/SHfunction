@@ -58,7 +58,7 @@ plot_gg<-function(gg,row,col){
 #' @param plim p value color upper limit: default 0.05
 #' @param row row number
 #' @param col column number
-#' @param x_axis_size letter size, default to 12
+#' @param x_axis_size letter size, default to 50
 #' @param savedir output png dir, default to "NA"
 #' @param unitwidth width of a single p histogram, default to 1440
 #' @param unitheight height of a single p histogram, default to 600
@@ -69,7 +69,7 @@ plot_gg<-function(gg,row,col){
 #' @export
 
 plot_p<-function(dat,p_name,x_name,bw=0.005,plim=0.05,
-                 row,col,x_axis_size=12,
+                 row,col,x_axis_size=50,
                  savedir="NA",unitwidth=1440,unitheight=600){
   if(length(p_name)!=length(x_name)){
     print("Mismatch of p name and xlab name. Quit.")

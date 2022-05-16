@@ -12,7 +12,7 @@ plot_p(
   plim = 0.05,
   row,
   col,
-  x_axis_size = 12,
+  x_axis_size = 50,
   savedir = "NA",
   unitwidth = 1440,
   unitheight = 600
@@ -33,7 +33,7 @@ plot_p(
 
 \item{col}{column number}
 
-\item{x_axis_size}{letter size, default to 12}
+\item{x_axis_size}{letter size, default to 50}
 
 \item{savedir}{output png dir, default to "NA"}
 

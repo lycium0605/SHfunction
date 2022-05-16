@@ -58,8 +58,8 @@ run_emm<-function(z,resids,rel,design,numcore=3){
   rel_female<-as.matrix(rel)
   clusterExport(iclus,varlist=c("resids_female","design",'z',"rel_female"),envir=environment())
   EMMA_RNA_nested=t(parApply(iclus,resids_female[,z],1,function(y){
-    requreNamespace(EMMREML)
-    emma=emmreml(y=y,X=design[z,],Z=diag(length(z)),K=rel_female[z,z],varbetahat=T,varuhat=T,PEVuhat=T,test=T)
+    requireNamespace("EMMREML",quietly = T)
+    emma=EMMREML::emmreml(y=y,X=design[z,],Z=diag(length(z)),K=rel_female[z,z],varbetahat=T,varuhat=T,PEVuhat=T,test=T)
     p=emma$pvalbeta
     varb=emma$varbetahat
     b=emma$betahat
@@ -83,7 +83,8 @@ run_emm<-function(z,resids,rel,design,numcore=3){
 #' @param numcore default to 3
 #' @param sname default to "sname.x"
 #' @param plot plot p histogram or not, default to F
-#'
+#' @param savedir if you want to save the picture, specify a dir
+#' @param x_axis_size font size of the x axis title, default to 20
 #' @return a combined result datarame
 #' @import ggplot2
 #' @export
@@ -91,16 +92,22 @@ run_emm<-function(z,resids,rel,design,numcore=3){
 #' @examples batch_emm(meta_info,c("age","rank"),resids,rel)
 batch_emm<-function(info,variable,resids,rel,
                     lps_name="treatment",numcore=3,
-                    sname="sname.x",plot=F){
+                    sname="sname.x",plot=F,savedir="NA",x_axis_size=20){
+  message(paste("Running model with",paste(variable,collapse = " and ")))
   design<-create_design(info,variable,lps_name)
   info_sname<-subset(info,select = sname)
   z<-which(complete.cases(design) & info_sname!="SAD"& info_sname!="ACI") #the column has to be sname.x
-  result_full<-run_emm(z,resids,rel,design,numcore = numcore)
-  pname<-colnames(result_full)[c(grep("p_",colnames(result_full)))]
-  if(plot==T){
-    plot_p(result_full,pname,pname,row = length(variable)+1,col = 2)
+  if(length(z)<=10){
+    message(paste("Only",length(z),"samples have all information, skip."))
+  }else{
+    message(paste(length(z),"out of",nrow(info),"samples have all information, running emmreml"))
+    result_full<-run_emm(z,resids,rel,design,numcore = numcore)
+    pname<-colnames(result_full)[c(grep("p_",colnames(result_full)))]
+    if(plot==T){
+      plot_p(result_full,pname,pname,row = length(variable)+1,col = 2,savedir=savedir,x_axis_size=x_axis_size)
+    }
+    return(result_full)
   }
-  return(result_full)
 }
 
 # Calculating fdr given permutation rate ---------------------------------------------------------------------
