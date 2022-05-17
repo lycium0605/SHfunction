@@ -64,11 +64,12 @@ emm_pip<-function(
                    resids=res_sub,rel=K_sub,
                    lps_name = lps_name,numcore = numcore,
                    sname=sname,plot = F)
-    if(!is.na(tmp)){
+    if(!is.null(tmp)){
       tmp_sr<-tmp%>%select(contains(change_var[i]))
       emm_result<-emm_result%>%bind_cols(tmp_sr)
     }
   }
+  emm_result$sr_type<-emm_prefix
   saveRDS(emm_result,paste0(outputdir,emm_prefix,"_",Sys.Date(),"_emm_result.RDS"))
 
   # 3. Plot p histogram for all variable presented in the giant data frame
