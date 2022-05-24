@@ -49,7 +49,7 @@ GSEA_var<-function(emm_result,varname,hallway,numcore=3,sim=10000){
   hallmark<-hallway
   emma_noper<-emm_result
   varlist<-c(grep("var_",colnames(emma_noper)))
-  print(varlist)
+  #print(varlist)
   keep<-which(apply(emma_noper[,varlist],1,function(x){length(which(x>0))})==length(varlist))
   hall_enrich<-matrix(NA,nrow=50,ncol=2)
   hall_enrich<-as.data.frame(hall_enrich)

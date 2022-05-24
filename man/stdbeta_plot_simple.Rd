@@ -4,7 +4,7 @@
 \alias{stdbeta_plot_simple}
 \title{stdbeta_plot_simple}
 \usage{
-stdbeta_plot_simple(x, y, data, p = 0.1)
+stdbeta_plot_simple(x, y, data, p = 0.1, color_lab = c("X", "Y"), ptsize = 0.5)
 }
 \arguments{
 \item{x}{parameter 1}
@@ -14,6 +14,10 @@ stdbeta_plot_simple(x, y, data, p = 0.1)
 \item{data}{emmreml result, colname in form beta_x, var_x}
 
 \item{p}{p cut-off to mark red}
+
+\item{color_lab}{default c("X","Y")}
+
+\item{ptsize}{default 0.5}
 }
 \value{
 a ggplot object
