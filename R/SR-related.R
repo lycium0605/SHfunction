@@ -299,7 +299,7 @@ merge_ge_sr<-function(ge_meta,sci,agi,dsi,dsi_sum,type="wt_avg"){
   sr_simp<-sr%>%
     select(sname,grp,sex,obs_date,days_present,eigen_wt,
            contains("SCI")|contains("AGI")|contains("DSI")|contains("SumBond"))%>%
-    select(-contains("_Dir"),-contains("_Rec"))%>%
+    #select(-contains("_Dir"),-contains("_Rec"))%>%
     rename(group=grp)
 
   #start merging ge and sr
@@ -331,5 +331,25 @@ merge_ge_sr<-function(ge_meta,sci,agi,dsi,dsi_sum,type="wt_avg"){
   }
   return(ge_sr_meta)
 
+}
+
+# Calculate dyad correaltion for social indices ---------------------------
+dyad_cor<-function(sr_index){
+  index_cor<-as.data.frame(cbind(NA,NA,NA))
+  colnames(index_cor)<-c("index1","index2","correlation")
+
+  for(index1 in 1:ncol(sr_index)){
+    #print(index1)
+    for(index2 in index1:ncol(sr_index)){
+      #print(index2)
+      #print(row)
+      tmp<-c(colnames(sr_index)[index1],colnames(sr_index)[index2],
+             cor(sr_index[,index1],sr_index[,index2],use = "complete.obs"))
+      index_cor<-rbind(index_cor,tmp)
+    }
+  }
+  index_cor<-index_cor[-1,]%>%
+    mutate_at("correlation",as.numeric)
+  return(index_cor)
 }
 

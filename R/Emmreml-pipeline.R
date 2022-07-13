@@ -57,6 +57,7 @@ emm_pip<-function(
                         resids=res_sub,rel=K_sub,
                         lps_name = lps_name,numcore = numcore,
                         sname=sname,plot = F)
+
   # 2. Running models adding change_var
   for(i in 1:length(change_var)){
     tmp<-batch_emm(info=merge_meta_sub,

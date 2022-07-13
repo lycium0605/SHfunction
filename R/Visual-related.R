@@ -258,12 +258,15 @@ stdbeta_plot<-function(x,y,condition="lps",data,p=0.1){
 #' @param ptsize point size, default to 1
 #' @param labsize lab text size
 #' @param alpha default to 0.7
+#' @param return default to plot, or df
 #'
 #' @return p a ggplot object
 #' @export
 #' @import dplyr
 
-log10qq<-function(data,var_list,colorlab="variable",qlength=1000,ptsize=1,labsize=5,alpha=0.7){
+log10qq<-function(data,var_list,colorlab="variable",
+                  qlength=1000,ptsize=1,labsize=5,alpha=0.7,
+                  return="plot"){
 
   p_theo<-runif(1:nrow(data))
   quantiles = seq(0, 1, length.out=qlength)
@@ -284,16 +287,24 @@ log10qq<-function(data,var_list,colorlab="variable",qlength=1000,ptsize=1,labsiz
     mutate(cat=as.factor(cat))%>%
     mutate(theo=as.numeric(theo))%>%
     mutate(emp=as.numeric(emp))
-  g<-ggplot(df, aes(theo,emp, group=cat,color=cat))+
-    geom_abline(slope = 1,intercept = 0,lty=2,size=ptsize)+
-    geom_point(size=ptsize,alpha=alpha)+
-    labs(x="-log10(p) dnormal",
-         y="-log10(p) empirical",
-         color=colorlab)+
-    theme(axis.title=element_text(size = labsize),
-          legend.text = element_text(size = labsize),
-          legend.title = element_text(size = labsize))
-  return(g)
+
+  if(return=="df"){
+    return(df)
+  }else if(return=="plot"){
+    g<-ggplot(df, aes(theo,emp, group=cat,color=cat))+
+      geom_abline(slope = 1,intercept = 0,lty=2,size=ptsize)+
+      geom_point(size=ptsize,alpha=alpha)+
+      labs(x="-log10(p) dnormal",
+           y="-log10(p) empirical",
+           color=colorlab)+
+      theme(axis.title=element_text(size = labsize),
+            legend.text = element_text(size = labsize),
+            legend.title = element_text(size = labsize))
+    return(g)
+  }else{
+    stop("return value must be plot or df")
+  }
+
 }
 
 #' Title
@@ -496,7 +507,8 @@ GSEA_dot_plot<-function(gsea_list,var_vec,suffix_vec,pathway=c(1:50),labsize=1){
   #es$hallway<-gsub("HALLMARK_","",rownames(es))
 
   #draw dotplot
-  g<-ggplot(es)+geom_point(aes(x=var,y=hallway,color=ES,size=-log10(ES_p+0.00001)),alpha=0.7) +
+  g<-ggplot(es)+
+    geom_point(aes(x=var,y=hallway,color=ES,size=-log10(ES_p+0.00001)),alpha=0.7) +
     theme(axis.title=element_text(size = labsize))
   return(g)
 
