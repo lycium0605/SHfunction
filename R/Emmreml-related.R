@@ -182,3 +182,28 @@ perm.fdr=function(input_df,perm_df,Pvals_col_name,name){ #name?
 
   return(fdrs_df)
 }
+
+
+# Marker analysis ---------------------------------------------------------
+
+single_marker<-function(gene_name,emm_merge){
+  IL6<-emm_merge[grep(gene_name,emm_merge$gene),]%>%
+    select(contains("lps"))%>%
+    select(-contains("M"))
+  # Get var list
+  varlist<-unique(gsub("beta_","",
+                       gsub("var_","",
+                            gsub("p_","",colnames(IL6)))))
+  # Process data
+  IL6_effect<-data.frame(matrix(ncol=4,nrow=length(varlist)))
+  colnames(IL6_effect)<-c("Beta","Var","P","Variable")
+  for(i in 1:length(varlist)){ #LPS everywhere
+    tmp<-IL6%>%select(contains(varlist[i],ignore.case = F))
+    tmp$Variable<-varlist[i]
+    IL6_effect[i,]<-tmp[1,]
+  }
+   IL6_effect$SD<-sqrt(IL6_effect$Var)
+   IL6_effect<-IL6_effect%>%arrange(Beta)
+  return(IL6_effect)
+  #return(IL6)
+}

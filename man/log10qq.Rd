@@ -11,7 +11,8 @@ log10qq(
   qlength = 1000,
   ptsize = 1,
   labsize = 5,
-  alpha = 0.7
+  alpha = 0.7,
+  return = "plot"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ log10qq(
 \item{labsize}{lab text size}
 
 \item{alpha}{default to 0.7}
+
+\item{return}{default to plot, or df}
 }
 \value{
 p a ggplot object
