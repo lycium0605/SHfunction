@@ -291,7 +291,7 @@ sci <- function(my_iyol, members_l, focals_l, females_l, interactions_l,
     progress <- function(n) setTxtProgressBar(pb, n)
     opts <- list(progress = progress)
     subset <- foreach(i = 1:nrow(my_iyol), .options.snow = opts,
-                      .packages = c('tidyverse')) %dopar% {
+                      .packages = c('tidyverse','ramboseli','SHfunction')) %dopar% {
                         get_sci_subset_sh(my_iyol[i, ], members_l, focals_l,
                                        females_l, interactions_l, min_res_days,
                                        directional, legacy_sci)
