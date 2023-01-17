@@ -70,7 +70,7 @@ get_interaction_dates <- function(my_sub, members_l, df, my_sex_var, my_role, my
 #' @param directional Logical value indicating whether to preserve directionality
 #'
 #' @return The input row with an additional list column containing the subset
-#'
+#' @keywords Internal
 #'
 get_sci_subset_sh <- function(df, members_l, focals_l, females_l, interactions_l,
                            min_res_days, directional, legacy_sci) {
