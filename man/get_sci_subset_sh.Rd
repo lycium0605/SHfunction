@@ -36,4 +36,3 @@ The input row with an additional list column containing the subset
 \description{
 Obtain SCI subsets for the animal's year of life
 }
-\keyword{Internal}

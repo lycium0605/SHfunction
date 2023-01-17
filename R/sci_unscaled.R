@@ -6,7 +6,7 @@
 #' @param sel God knows what
 #'
 #' @return God knows what
-#'
+#' @export
 #'
 #'
 get_mem_dates_sh <- function(my_sub, members_l, df, sel = NULL) {
@@ -38,6 +38,7 @@ get_mem_dates_sh <- function(my_sub, members_l, df, sel = NULL) {
 #' @param my_sex god knows what
 #'
 #' @return god knows what
+#' @export
 
 get_interaction_dates <- function(my_sub, members_l, df, my_sex_var, my_role, my_sex) {
 
@@ -70,7 +71,7 @@ get_interaction_dates <- function(my_sub, members_l, df, my_sex_var, my_role, my
 #' @param directional Logical value indicating whether to preserve directionality
 #'
 #' @return The input row with an additional list column containing the subset
-#' @keywords Internal
+#' @export
 #'
 get_sci_subset_sh <- function(df, members_l, focals_l, females_l, interactions_l,
                            min_res_days, directional, legacy_sci) {
@@ -471,7 +472,7 @@ dyadic_index <- function(my_iyol, biograph_l, members_l, focals_l, females_l, in
 #' @param data A full DSI data set including the subset list-column
 #'
 #' @return The full DSI data set with the res_i_adj values replaced by their universal-slope equivalents and a new column, res_i_adj_s, with z-scored values.
-#'
+#' @export
 #'
 apply_universal_slope <- function(data) {
 
@@ -544,7 +545,7 @@ apply_universal_slope <- function(data) {
 #' @param directional Logical value indicating whether to preserve directionality
 #'
 #' @return The input row with an additional list column containing the subset
-#'
+#' @export
 #'
 get_dyadic_subset <- function(df, biograph_l, members_l, focals_l, females_l,
                               interactions_l, min_cores_days, within_grp,
@@ -838,7 +839,7 @@ get_dyadic_subset <- function(df, biograph_l, members_l, focals_l, females_l,
 #' @param df A subset of data on which to fit a regression of interactions on observer effort.
 #'
 #' @return The input data with an additional column containing the regression residuals.
-#'
+#' @export
 #'
 fit_dyadic_regression <- function(df) {
 
@@ -877,7 +878,7 @@ fit_dyadic_regression <- function(df) {
 #' @param my_subset mysubset
 #'
 #' @return The input data with an additional list column containing the dyadic variables.
-#'
+#' @export
 #'
 get_focal_index <- function(my_sname, my_grp, my_subset) {
 
