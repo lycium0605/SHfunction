@@ -17,7 +17,6 @@ get_mem_dates <- function(my_sub, members_l, df, sel = NULL) {
   return(mem_dates)
 }
 
-
 get_interaction_dates <- function(my_sub, members_l, df, my_sex_var, my_role, my_sex) {
 
   groom_dates <- my_sub %>%
@@ -318,7 +317,7 @@ sci <- function(my_iyol, members_l, focals_l, females_l, interactions_l,
       dplyr::mutate_at(dplyr::vars(dplyr::starts_with("SCI")), list(scale_num)) %>%
       dplyr::ungroup()
 
-    my_grouping_vars <- names(my_iyol %>% select(-subset))
+  my_grouping_vars <- names(my_iyol %>% select(-subset))
 
     temp_iyol <- dplyr::bind_rows(sci_females, sci_males) %>%
       dplyr::group_by_at(all_of(my_grouping_vars)) %>%
