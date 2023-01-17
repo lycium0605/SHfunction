@@ -1,4 +1,15 @@
-get_mem_dates <- function(my_sub, members_l, df, sel = NULL) {
+#' get_mem_dates_sh
+#'
+#' @param my_sub God knows what
+#' @param members_l God knows what
+#' @param df God knows what
+#' @param sel God knows what
+#'
+#' @return God knows what
+#'
+#'
+#'
+get_mem_dates_sh <- function(my_sub, members_l, df, sel = NULL) {
 
   mem_dates <- my_sub %>%
     dplyr::ungroup() %>%
@@ -16,6 +27,17 @@ get_mem_dates <- function(my_sub, members_l, df, sel = NULL) {
 
   return(mem_dates)
 }
+
+#' get_interaction_dates
+#'
+#' @param my_sub god knows what
+#' @param members_l god knows what
+#' @param df god knows what
+#' @param my_sex_var god knows what
+#' @param my_role god knows what
+#' @param my_sex god knows what
+#'
+#' @return god knows what
 
 get_interaction_dates <- function(my_sub, members_l, df, my_sex_var, my_role, my_sex) {
 
@@ -50,7 +72,7 @@ get_interaction_dates <- function(my_sub, members_l, df, my_sex_var, my_role, my
 #' @return The input row with an additional list column containing the subset
 #'
 #'
-get_sci_subset <- function(df, members_l, focals_l, females_l, interactions_l,
+get_sci_subset_sh <- function(df, members_l, focals_l, females_l, interactions_l,
                            min_res_days, directional, legacy_sci) {
 
   zero_daily_count <- 1/365.25
@@ -79,7 +101,7 @@ get_sci_subset <- function(df, members_l, focals_l, females_l, interactions_l,
 
   ## Focal counts
   # Get all focals during relevant time period in grp
-  my_focals <- get_mem_dates(my_subset, my_members, focals_l, sel = quo(sum))
+  my_focals <- get_mem_dates_sh(my_subset, my_members, focals_l, sel = quo(sum))
 
   ## Observation days
   # Focal animal was present and at least one focal sample was collected
@@ -97,7 +119,7 @@ get_sci_subset <- function(df, members_l, focals_l, females_l, interactions_l,
                      .groups = "drop")
 
   ## Female counts
-  my_females <- get_mem_dates(my_subset, my_members, females_l, sel = quo(nr_females)) %>%
+  my_females <- get_mem_dates_sh(my_subset, my_members, females_l, sel = quo(nr_females)) %>%
     dplyr::group_by(grp, sname) %>%
     dplyr::summarise(mean_f_count = mean(nr_females),
                      .groups = "drop")
@@ -269,7 +291,7 @@ sci <- function(my_iyol, members_l, focals_l, females_l, interactions_l,
     opts <- list(progress = progress)
     subset <- foreach(i = 1:nrow(my_iyol), .options.snow = opts,
                       .packages = c('tidyverse')) %dopar% {
-                        get_sci_subset(my_iyol[i, ], members_l, focals_l,
+                        get_sci_subset_sh(my_iyol[i, ], members_l, focals_l,
                                        females_l, interactions_l, min_res_days,
                                        directional, legacy_sci)
                       }
@@ -283,7 +305,7 @@ sci <- function(my_iyol, members_l, focals_l, females_l, interactions_l,
     my_iyol$subset <- list(NULL)
     pb <- txtProgressBar(min = 0, max = nrow(my_iyol), style = 3) # Progress bar
     for (i in 1:nrow(my_iyol)) {
-      my_iyol[i, ]$subset <- list(get_sci_subset(my_iyol[i, ], members_l,
+      my_iyol[i, ]$subset <- list(get_sci_subset_sh(my_iyol[i, ], members_l,
                                                  focals_l, females_l,
                                                  interactions_l, min_res_days,
                                                  directional, legacy_sci))
