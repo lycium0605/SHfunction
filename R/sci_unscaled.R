@@ -366,6 +366,135 @@ sci <- function(my_iyol, members_l, focals_l, females_l, interactions_l,
   return(res)
 }
 
+#' Calculate Social Connectedness Index variables from individual-year-of-life data
+#'
+#' @param my_iyol Individual-year-of-life data.
+#' @param members_l A subset of members table produced by the function 'subset_members'
+#' @param focals_l A subset of focals produced by the function 'subset_focals'
+#' @param females_l A subset of female counts produced by the function 'subset_females'
+#' @param interactions_l A subset of interactions data produced by the function 'subset_interactions'
+#' @param min_res_days The minimum number of coresidence days needed for dyad to be included. Defaults to 60 days.
+#' @param parallel Logical value indicating whether to process in parallel
+#' @param ncores Integer value indicating how many cores to use in parallel processing
+#' @param directional Logical value indicating whether to preserve directionality
+#'
+#' @return The input data with an additional list columsn containing the full subset and variables.
+#' @export
+#'
+#'
+sci <- function(my_iyol, members_l, focals_l, females_l, interactions_l,
+                min_res_days = 60, parallel = FALSE, ncores = NULL,
+                directional = FALSE, legacy_sci = FALSE) {
+
+  ptm <- proc.time()
+
+  # Return an empty tibble if the subset is empty
+  if (is.null(my_iyol) |
+      !all(names(my_iyol) %in% c("sname", "grp", "start", "end", "days_present", "sex",
+                                 "birth", "first_start_date", "statdate", "birth_dates",
+                                 "midpoint", "age_start_yrs", "age_class", "obs_date")) |
+      min_res_days < 0) {
+    stop("Problem with input data. Use the 'make_iyol' or 'make_target_df' function to create the input.")
+  }
+
+  if (missing(min_res_days)) {
+    message("Using default value of 60 as minimum days of residence for an individual to be included. Adjust this if desired!")
+  }
+
+  if (parallel) {
+    avail_cores <- detectCores()
+    if (!is.null(ncores)) {
+      if (ncores > avail_cores) {
+        message(paste0("Ignoring 'ncores' argument because only ", avail_cores,
+                       " cores are available."))
+        ncores <- avail_cores
+      }
+    } else {
+      message(paste0("Using all available cores: ", avail_cores,
+                     ". Use 'ncores' to specify number of cores to use."))
+      ncores <- avail_cores
+    }
+
+    cl <- makeCluster(ncores)
+    registerDoSNOW(cl)
+    pb <- txtProgressBar(min = 0, max = nrow(my_iyol), style = 3)
+    progress <- function(n) setTxtProgressBar(pb, n)
+    opts <- list(progress = progress)
+    subset <- foreach(i = 1:nrow(my_iyol), .options.snow = opts,
+                      .packages = c('tidyverse','ramboseli','SHfunction')) %dopar% {
+                        get_sci_subset_sh(my_iyol[i, ], members_l, focals_l,
+                                          females_l, interactions_l, min_res_days,
+                                          directional, legacy_sci)
+                      }
+    close(pb)
+    stopCluster(cl)
+    my_iyol <- add_column(my_iyol, subset)
+  } else {
+    if (!is.null(ncores)) {
+      message("Ignoring 'ncores' argument because 'parallel' set to FALSE.")
+    }
+    my_iyol$subset <- list(NULL)
+    pb <- txtProgressBar(min = 0, max = nrow(my_iyol), style = 3) # Progress bar
+    for (i in 1:nrow(my_iyol)) {
+      my_iyol[i, ]$subset <- list(get_sci_subset_sh(my_iyol[i, ], members_l,
+                                                    focals_l, females_l,
+                                                    interactions_l, min_res_days,
+                                                    directional, legacy_sci))
+      setTxtProgressBar(pb, i)
+      close(pb)
+    }
+  }
+
+  if (!legacy_sci) {
+
+    sci_males <- my_iyol %>%
+      tidyr::unnest(cols = c(subset), names_repair = tidyr_legacy) %>%
+      dplyr::filter(sex == "M") %>%
+      dplyr::group_by(sname, sex, grp, age_class, start, end) %>%
+      dplyr::mutate(SCI_F_Dir = lm(log2ItoF_daily ~ log2OE)$residuals,
+                    SCI_F_Rec = lm(log2IfromF_daily ~ log2OE)$residuals,
+                    SCI_F = (SCI_F_Dir + SCI_F_Rec) / 2) %>%
+      dplyr::mutate_at(dplyr::vars(dplyr::starts_with("SCI")), list(scale_num)) %>%
+      dplyr::ungroup()
+
+    sci_females <- my_iyol %>%
+      tidyr::unnest(cols = c(subset), names_repair = tidyr_legacy) %>%
+      dplyr::filter(sex == "F") %>%
+      dplyr::group_by(sname, sex, grp, age_class, start, end) %>%
+      dplyr::mutate(SCI_F_Dir = lm(log2ItoF_daily ~ log2OE)$residuals,
+                    SCI_F_Rec = lm(log2IfromF_daily ~ log2OE)$residuals,
+                    SCI_F = (SCI_F_Dir + SCI_F_Rec) / 2,
+                    SCI_M_Dir = lm(log2ItoM_daily ~ log2OE)$residuals,
+                    SCI_M_Rec = lm(log2IfromM_daily ~ log2OE)$residuals,
+                    SCI_M = (SCI_M_Dir + SCI_M_Rec) / 2) %>%
+      dplyr::mutate_at(dplyr::vars(dplyr::starts_with("SCI")), list(scale_num)) %>%
+      dplyr::ungroup()
+
+    my_grouping_vars <- names(my_iyol %>% select(-subset))
+
+    temp_iyol <- dplyr::bind_rows(sci_females, sci_males) %>%
+      dplyr::group_by_at(all_of(my_grouping_vars)) %>%
+      tidyr::nest_legacy(.key = "subset") %>%
+      dplyr::arrange(sname, grp, age_class)
+
+  }
+
+  sci_focal <- temp_iyol %>%
+    tidyr::unnest(cols = c(subset), names_repair = tidyr_legacy) %>%
+    dplyr::mutate(focal = (sname == sname1 & grp == grp1)) %>%
+    dplyr::filter(focal) %>%
+    dplyr::select(sname, grp, start, end, dplyr::contains("SCI_"))
+
+  res <- dplyr::left_join(temp_iyol, sci_focal, by = c("sname", "grp", "start", "end"))
+
+  attr(res, "directional") <- directional
+
+  tdiff <- (proc.time() - ptm)["elapsed"] / 60
+  message(paste0("Elapsed time: ", round(tdiff, 3), " minutes (",
+                 round(tdiff / 60, 3), ") hours."))
+
+  return(res)
+}
 
 #' Calculate dyadic index variables from individual-year-of-life data
 #'

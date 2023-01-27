@@ -16,6 +16,19 @@ sci(
   directional = FALSE,
   legacy_sci = FALSE
 )
+
+sci(
+  my_iyol,
+  members_l,
+  focals_l,
+  females_l,
+  interactions_l,
+  min_res_days = 60,
+  parallel = FALSE,
+  ncores = NULL,
+  directional = FALSE,
+  legacy_sci = FALSE
+)
 }
 \arguments{
 \item{my_iyol}{Individual-year-of-life data.}
@@ -38,7 +51,11 @@ sci(
 }
 \value{
 The input data with an additional list columsn containing the full subset and variables.
+
+The input data with an additional list columsn containing the full subset and variables.
 }
 \description{
+Calculate Social Connectedness Index variables from individual-year-of-life data
+
 Calculate Social Connectedness Index variables from individual-year-of-life data
 }
